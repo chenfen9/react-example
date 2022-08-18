@@ -6,45 +6,33 @@ function App() {
   const [comment,setComment] = useState([])
   // 对话框展示与否
   const [isModalVisible,setShow] = useState(false)
-  // 修改的第一个input框
-  const [input1,setInput1] = useState('')
-  // 修改的第二个input框
-  const [input2,setInput2] = useState('')
   // 修改评论的索引值
   const [index,setIndex] = useState('')
   // 表单实例
   const [form] = Form.useForm();
-  const handlerChange1 = (e) => {
-     setInput1(val=>val = e.target.value)
-    
-  }
-  const handlerChange2 = (e) => {
-    setInput2(val=>val=e.target.value)
- }
+  const [newForm] = Form.useForm();
   const onFinish = (values) => {
     setComment(value=>{
       value.push(values)
       return [...value]
     } )
     form.resetFields()
-    console.log(values,comment)
   };
   const handleOk = () => {
+    const newComment = newForm.getFieldsValue()
     setShow(val=>val=false)
     setComment(val=>{
-      val.splice(index,1,{person:input1,content:input2})
-      return val
-     })
-
+      val.splice(index,1,{person:newComment.newperson,content:newComment.newcontent})
+      return [...val]
+    })
   }
   const handleCancel = () => {
      setShow(val=>val=false)
   }
   const handlerContent = (item,index) => {
     setShow(val=>val = true)
-    setInput1(val=>val = item.person)
-    setInput2(val=>val = item.content)
     setIndex(val=>val = index)
+    newForm.setFieldsValue({newperson:item.person,newcontent:item.content})
     
   }
   const onFinishFailed = (errorInfo) => {
@@ -102,9 +90,21 @@ function App() {
        })
     
      }
-      <Modal title="修改内容" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel} cancelText="取消" okText="确认">
-        <Input style={{'marginBottom':'10px'}} value={input1} onChange={handlerChange1}/>
-        <Input value={input2} onChange={handlerChange2}/>
+      <Modal title="修改内容" forceRender="true" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel} cancelText="取消" okText="确认">
+        {/* <Input style={{'marginBottom':'10px'}} value={input1} onChange={handlerChange1}/>
+        <Input value={input2} onChange={handlerChange2}/> */}
+         <Form form={newForm} name="newForm" labelCol={{span: 8,}} wrapperCol={{ span: 16,}}
+       initialValues={{
+        remember: true,
+      }}
+      autoComplete="off">
+         <Form.Item  rules={[{ required: true}]} label="评论人" name="newperson">
+          <Input />
+        </Form.Item>
+        <Form.Item rules={[{ required: true}]} label="评论内容" name="newcontent">
+          <Input />
+        </Form.Item>
+       </Form>
       </Modal>
     </div>
   );
